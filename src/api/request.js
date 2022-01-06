@@ -1,12 +1,12 @@
 /*
  * @Author: liu
  * @Date: 2022-01-04 17:44:11
- * @LastEditTime: 2022-01-05 16:58:19
+ * @LastEditTime: 2022-01-06 11:58:22
  * @Description: 封装axios接口请求
  */
 import axios from 'axios';
 import { Message } from 'element-ui';
-import store from '@/store';
+import store from '@/utils/store';
 
 // 跨域携带cookie信息
 axios.defaults.withCredentials = true;
@@ -51,7 +51,6 @@ instance.interceptors.request.use(
 // 响应拦截器即异常处理
 instance.interceptors.response.use(
   response => {
-    console.log(response);
     if (response.data.code && response.data.code !== 200) {
       Message.error('请求出错');
       return Promise.reject(response.data.data);
@@ -59,18 +58,19 @@ instance.interceptors.response.use(
     return response;
   },
   error => {
-    console.log(error);
     if (!error || !error.response) {
-      error.message = '连接服务器失败';
+      Message.error('连接服务器失败');
     }
     else if (error.response.data.code == "8002") {
       store.commit('LOGIN_OUT');
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      error.message = "登录超时，请重新登录";
+      Message.error('登录超时，请重新登录');
     }
-    Message.error(error.message);
+    else {
+      Message.error(error.response.data.message);
+    }
     return Promise.reject(error.response);
   }
 )

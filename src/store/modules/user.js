@@ -1,14 +1,15 @@
 /*
  * @Author: liu
  * @Date: 2022-01-05 17:01:48
- * @LastEditTime: 2022-01-05 17:51:21
+ * @LastEditTime: 2022-01-06 12:11:16
  * @Description: 用户信息
  */
 import * as types from "../mutation-types";
+import store from '@/utils/store';
 
 const storeState = {
-  token: getToken(),
-  userInfo: store.get("userInfo"),
+  token: store.get('token'),
+  userInfo: store.get('userInfo'),
 };
 const getters = {
   token: state => state.token,
@@ -18,9 +19,9 @@ const mutations = {
   [types.SET_TOKEN](state, data) {
     state.token = data;
     if (data) {
-      setToken(data);
+      store.set('token', data);
     } else {
-      removeToken();
+      store.remove('token');
     }
   },
   [types.SET_USER_INFO](state, data) {
@@ -70,47 +71,6 @@ const actions = {
     // } else {
     //   window.location.href = `${window.location.protocol}//admin.smartpark.zwehs.com/#/login`
     // }
-  },
-  // 获取菜单数据
-  getMenuTreeListData({ commit }) {
-    return new Promise((resolve, reject) => {
-      loginApi.getMenuListTree(this.getters.appInfo.appId).then(
-        response => {
-          commit(types.SET_MENUTREELIST, response.data.data);
-          resolve(response);
-        },
-        error => { reject(error); }
-      )
-    })
-
-  },
-  getMyPermission({ commit }) {
-    return new Promise((resolve, reject) => {
-      loginApi.getMyPermission({ appId: this.getters.appInfo.appId }).then(
-        response => {
-          if (response.data.code === 200) {
-            commit(types.SET_MY_PERMISSION, response.data.data);
-            resolve(response)
-          } else {
-            Notice.error({
-              title: response.data.code,
-              desc: response.data.message,
-              duration: 3,
-              onClose: () => {
-                if (process.env.NODE_ENV === "development") {
-                  window.location.href = `${window.location.protocol}//${window.location.hostname}:8090/#/login`;
-                } else {
-                  window.location.href = `${window.location.protocol}//admin.smartpark.zwehs.com/#/login`;
-                }
-              }
-            })
-
-          }
-
-        },
-        error => { reject(error) }
-      )
-    })
   }
 };
 
